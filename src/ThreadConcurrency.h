@@ -42,6 +42,12 @@ class ThreadConcurrency
 		static pthread_t threads[NBTHREAD];		/*< Tab which contain threads' ids */
 		static unsigned int NbCandy;			/*< Candy number shared variable */
 
+		static mutex ThreadMutex;				/*< Mutex for candy synchronization */
+		static pthread_rwlock_t ThreadRWLock;	/*< Lock for reader/writer synchronization */
+
+		static queue<int> CandyQueue;			/*< Shared queue for producer/consumer */
+		static condition_variable ThreadCondVar;/*< Condition variable for producer/consumer synchronization */
+
 	public :
 		/**
 		 * \fn static unsigned int getNbCandy()
@@ -59,8 +65,17 @@ class ThreadConcurrency
 		 * \param[in] start_routine thread routine to execute
 		 */
 		static void run_candy(void* (*start_routine)(void*));
+		/**
+		 * \fn static void run_two_candy(void* (*routine1)(void*), void* (*routine2)(void*))
+		 * \brief Method to run N threads routines concurrently
+		 *
+		 * \param[in] routine1 first thread routine to execute
+		 *
+		 * \param[in] routine2 second thread routine to execute
+		 */
+		static void run_two_candy(void* (*routine1)(void*), void* (*routine2)(void*));
 
-	public :
+	public :	// Stand mutex
 		/**
 		 * \fn static void* candy_thread_process(void* arg)
 		 * \brief static function for thread routine
@@ -70,6 +85,55 @@ class ThreadConcurrency
 		 * \return pointer on returned thread object
 		 */
 		static void* candy_thread_process(void* arg);
+		/**
+		 * \fn static void* candy_thread_mutex(void* arg)
+		 * \brief static function for thread routine with mutex
+		 *
+		 * \param[in] arg pointer on object thread argument
+		 *
+		 * \return pointer on returned thread object
+		 */
+		static void* candy_thread_mutex(void* arg);
+
+	public :	// Reader/Writer
+		/**
+		 * \fn static void* candy_thread_reader(void* arg)
+		 * \brief static function for thread routine reader
+		 *
+		 * \param[in] arg pointer on object thread argument
+		 *
+		 * \return pointer on returned thread object
+		 */
+		static void* candy_thread_reader(void* arg);
+		/**
+		 * \fn static void* candy_thread_writer(void* arg)
+		 * \brief static function for thread routine writer
+		 *
+		 * \param[in] arg pointer on object thread argument
+		 *
+		 * \return pointer on returned thread object
+		 */
+		static void* candy_thread_writer(void* arg);
+
+	public :	// Producer/Consumer
+		/**
+		 * \fn static void* candy_thread_producer(void* arg)
+		 * \brief static function for thread routine producer
+		 *
+		 * \param[in] arg pointer on object thread argument
+		 *
+		 * \return pointer on returned thread object
+		 */
+		static void* candy_thread_producer(void* arg);
+		/**
+		 * \fn static void* candy_thread_consumer(void* arg)
+		 * \brief static function for thread routine consumer
+		 *
+		 * \param[in] arg pointer on object thread argument
+		 *
+		 * \return pointer on returned thread object
+		 */
+		static void* candy_thread_consumer(void* arg);
 };
 
 

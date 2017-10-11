@@ -82,6 +82,44 @@ class ThreadObject
 		 * \brief Method to print thread info to stdout if the PrintThread is true
 		 */
 		void printThread() const;
+
+	public :
+		/**
+		 * \fn static pid_t getThreadID()
+		 * \brief Function to get the thread ID of the calling thread
+		 *
+		 * \return the TID (Thread ID)
+		 */
+		static pid_t getThreadID();
+
+	public :
+		/**
+		 * \fn static void* thread_start(void* arg)
+		 * \brief static function for thread routine. Start a thread and return a value
+		 *
+		 * \param[in] arg pointer on object thread argument
+		 *
+		 * \return pointer on returned thread object
+		 */
+		static void* thread_start(void* arg);
+		/**
+		 * \fn static void* thread_wait(void* arg)
+		 * \brief static function for thread routine. Start a thread and do an active wait
+		 *
+		 * \param[in] arg pointer on object thread argument
+		 *
+		 * \return pointer on returned thread object
+		 */
+		static void* thread_wait(void* arg);
+		/**
+		 * \fn static void* thread_bench(void* arg)
+		 * \brief static function for thread routine. Start a dummy thread
+		 *
+		 * \param[in] arg pointer on object thread argument
+		 *
+		 * \return pointer on returned thread object
+		 */
+		static void* thread_bench(void* arg);
 };
 
 

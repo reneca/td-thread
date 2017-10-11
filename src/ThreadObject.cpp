@@ -61,7 +61,68 @@ string ThreadObject::getThreadName(const char* prefix, unsigned short threadID)
 void ThreadObject::printThread() const
 {
 	if (PrintThread)
-		cout << "Je suis le thread " << ThreadNum << endl;
+		cout << "Je suis le thread " << ThreadNum << " avec pour tid : " << getThreadID() << endl;
+}
+
+pid_t ThreadObject::getThreadID()
+{
+#ifdef __APPLE__
+	{
+		uint64_t tid;
+		pthread_threadid_np(NULL, &tid);
+		return static_cast<pid_t>(tid);
+	}
+#else
+	return static_cast<pid_t>(syscall(SYS_gettid));
+#endif
+}
+
+void* ThreadObject::thread_start(void* arg)
+{
+	ThreadObject* wObject = reinterpret_cast<ThreadObject*>(arg);
+
+	wObject->printThread();
+	delete wObject;
+
+	// Only thread 3 return an error
+	if (wObject->getThreadNum() != 3)
+		return new unsigned int(0);
+	else
+		return new unsigned int(2);
+}
+
+void* ThreadObject::thread_wait(void* arg)
+{
+	ThreadObject* wObject = reinterpret_cast<ThreadObject*>(arg);
+#ifdef __APPLE__
+	pthread_setname_np(wObject->getThreadName().c_str());
+#endif
+
+	sleep(1);
+	wObject->printThread();
+
+	if (wObject->getThreadNum() == 2)
+	{
+		// Active wait
+		time_t wStartTime = time(nullptr);
+		while (wStartTime > (time(nullptr) - 4));
+	}
+	else
+		sleep(4);
+
+	delete wObject;
+
+	return nullptr;
+}
+
+void* ThreadObject::thread_bench(void* arg)
+{
+	ThreadObject* wObject = reinterpret_cast<ThreadObject*>(arg);
+
+	wObject->printThread();
+	delete wObject;
+
+	return nullptr;
 }
 
 

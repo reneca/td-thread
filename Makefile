@@ -47,28 +47,38 @@ clean: ## Clean all compil files
 
 # TD1
 test: thread ## TD1 - Test pthread
-	# TODO
+	./thread pthread
 
 ps: thread ## TD1 - Show processus threads
-	# TODO
+	./thread pthreadps 8&
+	sleep 2
+	#ps -Llf -p `pgrep -f thread.o | head -1`
+	ps H -o 'flag,state,pid,ppid,pgid,pmem,rss,rsz,pcpu,time,cmd,comm' -p `pgrep -f ./thread | head -1`
 
 top: thread ## TD1 - Show live processus threads
-	# TODO
+	./thread pthreadps 8&
+	top -H -p `pgrep -f ./thread | head -1`
 
 
 # TD2
 candy: thread ## TD2 - Build candy first example
 	./thread candy
-
+	
 mutex: thread ## TD2 - Build candy with mutex protection
-	# TODO
-
+	./thread candymutex&
+	@sleep 1
+	@ps H -o 'flag,state,pid,ppid,pgid,pmem,rss,rsz,pcpu,time,cmd,comm' -p `pgrep -f ./thread | head -1`
+	
 readwrite: thread ## TD2 - Build candy reader / writer
-	# TODO
-
+	./thread candyrw&
+	@sleep 1
+	@ps H -o 'flag,state,pid,ppid,pgid,pmem,rss,rsz,pcpu,time,cmd,comm' -p `pgrep -f ./thread | head -1`
+	
 prodconsum: thread ## TD2 - Build candy producer / consumer
-	# TODO
-
+	./thread candypc&
+	@sleep 1
+	@ps H -o 'flag,state,pid,ppid,pgid,pmem,rss,rsz,pcpu,time,cmd,comm' -p `pgrep -f ./thread | head -1`
+	
 
 # Help
 help:
