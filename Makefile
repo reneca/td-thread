@@ -44,6 +44,9 @@ debug: thread ## Build thread debug bin
 clean: ## Clean all compil files
 	rm -rf lib thread
 
+docker:
+	docker run -ti --rm -v $(pwd):/opt/td-thread overware/ovbuilder
+
 
 # TD1
 test: thread ## TD1 - Test pthread
@@ -63,22 +66,22 @@ top: thread ## TD1 - Show live processus threads
 # TD2
 candy: thread ## TD2 - Build candy first example
 	./thread candy
-	
+
 mutex: thread ## TD2 - Build candy with mutex protection
 	./thread candymutex&
 	@sleep 1
 	@ps H -o 'flag,state,pid,ppid,pgid,pmem,rss,rsz,pcpu,time,cmd,comm' -p `pgrep -f ./thread | head -1`
-	
+
 readwrite: thread ## TD2 - Build candy reader / writer
 	./thread candyrw&
 	@sleep 1
 	@ps H -o 'flag,state,pid,ppid,pgid,pmem,rss,rsz,pcpu,time,cmd,comm' -p `pgrep -f ./thread | head -1`
-	
+
 prodconsum: thread ## TD2 - Build candy producer / consumer
 	./thread candypc&
 	@sleep 1
 	@ps H -o 'flag,state,pid,ppid,pgid,pmem,rss,rsz,pcpu,time,cmd,comm' -p `pgrep -f ./thread | head -1`
-	
+
 
 # Help
 help:
