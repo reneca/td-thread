@@ -44,6 +44,9 @@ debug: thread ## Build thread debug bin
 clean: ## Clean all compil files
 	rm -rf lib thread
 
+docker:
+	docker run -ti --rm -v $(pwd):/opt/td-thread overware/ovbuilder
+
 
 # TD1
 test: thread ## TD1 - Test pthread
