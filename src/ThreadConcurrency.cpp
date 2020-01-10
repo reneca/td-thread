@@ -34,7 +34,7 @@ void ThreadConcurrency::run_candy(void* (*start_routine)(void*))
 	cout << "Candy before = " << NbCandy << endl;
 
 	unsigned short i;
-	for (i = 0; i < 2; i++)
+	for (i = 0; i < NBTHREAD; i++)
 	{
 		// Start threads
 		pthread_create(&threads[i], nullptr, start_routine, nullptr);

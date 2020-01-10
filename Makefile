@@ -45,7 +45,7 @@ clean: ## Clean all compil files
 	rm -rf lib thread
 
 docker:
-	docker run -ti --rm -v $(pwd):/opt/td-thread overware/ovbuilder
+	docker run -ti --rm -v $(shell pwd):/opt/td-thread overware/ovbuilder
 
 
 # TD1
