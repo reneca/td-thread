@@ -39,8 +39,10 @@ using namespace std;
 
 // Define all thread type by default run pthread
 enum ThreadType : unsigned char {
-	CANDY			= 10,
-} typeThread = CANDY;
+	NONE      = 0,
+	MESSAGE   = 10,
+	CANDY     = 20,
+} typeThread = NONE;
 
 /**
  * \fn void printHelp()
@@ -49,9 +51,10 @@ enum ThreadType : unsigned char {
 void printHelp(const char* progName)
 {
 	cout << progName << endl
-	     << "TP1 :" << endl
-		 << "TP2 :" << endl
-		 << "\t- candy" << endl;
+       << "TP1 :" << endl
+       << "\t- message" << endl
+       << "TP2 :" << endl
+       << "\t- candy" << endl;
 }
 
 
@@ -62,8 +65,11 @@ int main(int argc, char *argv[])
 	{
 		string wThreadType(argv[1]);
 		std::transform(wThreadType.begin(), wThreadType.end(), wThreadType.begin(), ::tolower);
-		if (wThreadType == "candy")
+		if (wThreadType == "message") {
+			typeThread = ThreadType::MESSAGE;
+		} else if (wThreadType == "candy") {
 			typeThread = ThreadType::CANDY;
+		}
 		else
 		{
 			printHelp(argv[0]);
@@ -79,11 +85,15 @@ int main(int argc, char *argv[])
 	// Run threads
 	switch (typeThread)
 	{
+		case ThreadType::MESSAGE:
+			cout << "Afficher message avec un thread ici" << endl;
+			break;
+
 		case ThreadType::CANDY:
 			ThreadConcurrency::run_candy(ThreadConcurrency::candy_thread_process);
 			break;
 
-		default :
+		default:
 			return -1;
 	}
 
