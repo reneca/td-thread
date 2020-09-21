@@ -39,11 +39,12 @@ using namespace std;
 
 // Define all thread type by default run pthread
 enum ThreadType : unsigned char {
-	PTHREAD			= 1,
+	NONE			= 0,
+	PTHREAD		= 10,
 	PTHREADPS,
 	STDTHREAD,
 
-	CANDY			= 10,
+	CANDY			= 20,
 	CANDY_MUTEX,
 	CANDY_READWRITE,
 	CANDY_PRODUCTCONSUM
@@ -159,7 +160,7 @@ int main(int argc, char *argv[])
 		std::transform(wThreadType.begin(), wThreadType.end(), wThreadType.begin(), ::tolower);
 		if (wThreadType == "pthread")
 			typeThread = ThreadType::PTHREAD;
-		if (wThreadType == "stdthread")
+		else if (wThreadType == "stdthread")
 			typeThread = ThreadType::STDTHREAD;
 		else if (wThreadType == "pthreadps")
 			typeThread = ThreadType::PTHREADPS;

@@ -44,8 +44,8 @@ debug: thread ## Build thread debug bin
 clean: ## Clean all compil files
 	rm -rf lib thread
 
-docker:
-	docker run -ti --rm -v $(shell pwd):/opt/td-thread overware/ovbuilder
+docker: ## Run debian docker to run correction
+	docker run -ti --rm -v $(shell pwd):/opt/td-thread overware/ovbuilder:debian
 
 
 # TD1
