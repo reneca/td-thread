@@ -64,6 +64,3 @@ void* ThreadConcurrency::candy_thread_process(void* arg)
 
 	return nullptr;
 }
-
-
-// End of file

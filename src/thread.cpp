@@ -33,16 +33,7 @@
 #include "ThreadObject.h"
 #include "ThreadConcurrency.h"
 
-
 using namespace std;
-
-
-// Define all thread type by default run pthread
-enum ThreadType : unsigned char {
-	NONE      = 0,
-	MESSAGE   = 10,
-	CANDY     = 20,
-} typeThread = NONE;
 
 /**
  * \fn void printHelp()
@@ -65,10 +56,14 @@ int main(int argc, char *argv[])
 	{
 		string wThreadType(argv[1]);
 		std::transform(wThreadType.begin(), wThreadType.end(), wThreadType.begin(), ::tolower);
-		if (wThreadType == "message") {
-			typeThread = ThreadType::MESSAGE;
-		} else if (wThreadType == "candy") {
-			typeThread = ThreadType::CANDY;
+		if (wThreadType == "message")
+		{
+			cout << "Afficher message avec un thread ici" << endl;
+			// TODO
+		}
+		else if (wThreadType == "candy")
+		{
+			ThreadConcurrency::run_candy(ThreadConcurrency::candy_thread_process);
 		}
 		else
 		{
@@ -82,23 +77,5 @@ int main(int argc, char *argv[])
 		return 0;
 	}
 
-	// Run threads
-	switch (typeThread)
-	{
-		case ThreadType::MESSAGE:
-			cout << "Afficher message avec un thread ici" << endl;
-			break;
-
-		case ThreadType::CANDY:
-			ThreadConcurrency::run_candy(ThreadConcurrency::candy_thread_process);
-			break;
-
-		default:
-			return -1;
-	}
-
 	return 0;
 }
-
-
-// End of file

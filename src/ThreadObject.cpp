@@ -63,6 +63,3 @@ void ThreadObject::printThread() const
 	if (PrintThread)
 		cout << "Je suis le thread " << ThreadNum << endl;
 }
-
-
-// End of file
