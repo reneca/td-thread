@@ -1,2 +1,22 @@
 lib/
 thread
+
+# IDE files
+.vscode/*
+.history/
+.metadata
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.settings/
+.loadpath
+.recommenders
+.idea
+out/
+
+# OS files
+*.DS_Store

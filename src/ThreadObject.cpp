@@ -124,6 +124,3 @@ void* ThreadObject::thread_bench(void* arg)
 
 	return nullptr;
 }
-
-
-// End of file

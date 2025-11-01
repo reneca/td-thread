@@ -23,6 +23,7 @@
  */
 
 #include <iostream>
+#include <memory>
 #include <string>
 #include <algorithm>
 #include <unistd.h>
@@ -33,43 +34,28 @@
 #include "ThreadObject.h"
 #include "ThreadConcurrency.h"
 
-
 using namespace std;
-
-
-// Define all thread type by default run pthread
-enum ThreadType : unsigned char {
-	NONE			= 0,
-	PTHREAD		= 10,
-	PTHREADPS,
-	STDTHREAD,
-
-	CANDY			= 20,
-	CANDY_MUTEX,
-	CANDY_READWRITE,
-	CANDY_PRODUCTCONSUM
-} typeThread = PTHREAD;
-
-// By default run 6 threads
-unsigned int nbConcurentThread = 6;
 
 // Not print thread infos by default
 bool showThreadInfos = false;
 
-
 /**
  * \fn void run_pthread()
  * \brief Function to run a Pthread and control the return value
+ *
+ * \param[in] nbConcurentThread Number of concurrent thread to run
  */
-void run_pthread()
+void run_pthread(const unsigned int nbConcurentThread)
 {
 	cout << " pthread[" << nbConcurentThread << ']' << endl;
 
-	pthread_t threads[nbConcurentThread];
+	std::vector<pthread_t> threads;
 	int wReturnThread;
 	for (size_t i = 0; i < nbConcurentThread; i++)
 	{
-		wReturnThread = pthread_create( &threads[i], nullptr, ThreadObject::thread_start, (void*)new ThreadObject(i, showThreadInfos));
+	    pthread_t threadId;
+		wReturnThread = pthread_create( &threadId, nullptr, ThreadObject::thread_start, (void*)new ThreadObject(i, showThreadInfos));
+		threads.push_back(threadId);
 	}
 
 	unsigned int* wReturnValue;
@@ -89,21 +75,25 @@ void run_pthread()
 /**
  * \fn void run_pthreadps()
  * \brief Function to run thread to be watched by ps
+ *
+ * \param[in] nbConcurentThread Number of concurrent thread to run
  */
-void run_pthreadps()
+void run_pthreadps(const unsigned int nbConcurentThread)
 {
 	cout << " pthreadps[" << nbConcurentThread << ']' << endl;
 
-	pthread_t threads[nbConcurentThread];
+	std::vector<pthread_t> threads;
 	ThreadObject* wThreadObject;
 	int wReturnThread;
 	for (size_t i = 0; i < nbConcurentThread; i++)
 	{
 		wThreadObject = new ThreadObject(i, false);
-		wReturnThread = pthread_create( &threads[i], nullptr, ThreadObject::thread_wait, (void*)wThreadObject);
+		pthread_t threadId;
+		wReturnThread = pthread_create( &threadId, nullptr, ThreadObject::thread_wait, (void*)wThreadObject);
 #if !defined(__APPLE__)
-		pthread_setname_np(threads[i], wThreadObject->getThreadName().c_str());
+		pthread_setname_np(threadId, wThreadObject->getThreadName().c_str());
 #endif
+        threads.push_back(threadId);
 	}
 
 	for (size_t i = 0; i < nbConcurentThread; i++)
@@ -115,15 +105,17 @@ void run_pthreadps()
 /**
  * \fn void run_stdthread()
  * \brief Function to run a std::thread
+ *
+ * \param[in] nbConcurentThread Number of concurrent thread to run
  */
-void run_stdthread()
+void run_stdthread(const unsigned int nbConcurentThread)
 {
 	cout << " stdthread[" << nbConcurentThread << ']' << endl;
 
-	thread* threads[nbConcurentThread];
+	std::vector<shared_ptr<thread>> threads;
 	for (size_t i = 0; i < nbConcurentThread; i++)
 	{
-		threads[i] = new thread(ThreadObject::thread_bench, new ThreadObject(i, showThreadInfos));
+		threads.push_back(std::make_shared<thread>(ThreadObject::thread_bench, new ThreadObject(i, showThreadInfos)));
 	}
 
 	for (size_t i = 0; i < nbConcurentThread; i++)
@@ -158,32 +150,39 @@ int main(int argc, char *argv[])
 	{
 		string wThreadType(argv[1]);
 		std::transform(wThreadType.begin(), wThreadType.end(), wThreadType.begin(), ::tolower);
-		if (wThreadType == "pthread")
-			typeThread = ThreadType::PTHREAD;
-		else if (wThreadType == "stdthread")
-			typeThread = ThreadType::STDTHREAD;
-		else if (wThreadType == "pthreadps")
-			typeThread = ThreadType::PTHREADPS;
-		else if (wThreadType == "candy")
-			typeThread = ThreadType::CANDY;
-		else if (wThreadType == "candymutex")
-			typeThread = ThreadType::CANDY_MUTEX;
-		else if (wThreadType == "candyrw")
-			typeThread = ThreadType::CANDY_READWRITE;
-		else if (wThreadType == "candypc")
-			typeThread = ThreadType::CANDY_PRODUCTCONSUM;
-		else
-		{
-			printHelp(argv[0]);
-			return 0;
-		}
 
 		// Get number of concurrent thread
+		// By default run 6 threads
+		unsigned int nbConcurentThread = 6;
 		if (argc > 2)
 		{
 			nbConcurentThread = strtoul(argv[2], nullptr, 0);
 			if (nbConcurentThread == 0)
 				nbConcurentThread = 1;
+		}
+
+		// Print thread infos only if it's not to wide
+		if (nbConcurentThread < 1000)
+			showThreadInfos = true;
+
+		if (wThreadType == "pthread")
+		    run_pthread(nbConcurentThread);
+		else if (wThreadType == "stdthread")
+		    run_stdthread(nbConcurentThread);
+		else if (wThreadType == "pthreadps")
+		    run_pthreadps(nbConcurentThread);
+		else if (wThreadType == "candy")
+		    ThreadConcurrency::run_candy(ThreadConcurrency::candy_thread_process);
+		else if (wThreadType == "candymutex")
+		    ThreadConcurrency::run_candy(ThreadConcurrency::candy_thread_mutex);
+		else if (wThreadType == "candyrw")
+		    ThreadConcurrency::run_two_candy(ThreadConcurrency::candy_thread_writer, ThreadConcurrency::candy_thread_reader);
+		else if (wThreadType == "candypc")
+		    ThreadConcurrency::run_two_candy(ThreadConcurrency::candy_thread_producer, ThreadConcurrency::candy_thread_consumer);
+		else
+		{
+			printHelp(argv[0]);
+			return 0;
 		}
 	}
 	else
@@ -192,47 +191,5 @@ int main(int argc, char *argv[])
 		return 0;
 	}
 
-	// Print thread infos only if it's not to wide
-	if (nbConcurentThread < 1000)
-		showThreadInfos = true;
-
-	// Run threads
-	switch (typeThread)
-	{
-		case ThreadType::PTHREAD:
-			run_pthread();
-			break;
-
-		case ThreadType::PTHREADPS:
-			run_pthreadps();
-			break;
-
-		case ThreadType::STDTHREAD:
-			run_stdthread();
-			break;
-
-		case ThreadType::CANDY:
-			ThreadConcurrency::run_candy(ThreadConcurrency::candy_thread_process);
-			break;
-
-		case ThreadType::CANDY_MUTEX:
-			ThreadConcurrency::run_candy(ThreadConcurrency::candy_thread_mutex);
-			break;
-
-		case ThreadType::CANDY_READWRITE:
-			ThreadConcurrency::run_two_candy(ThreadConcurrency::candy_thread_writer, ThreadConcurrency::candy_thread_reader);
-			break;
-
-		case ThreadType::CANDY_PRODUCTCONSUM:
-			ThreadConcurrency::run_two_candy(ThreadConcurrency::candy_thread_producer, ThreadConcurrency::candy_thread_consumer);
-			break;
-
-		default :
-			return -1;
-	}
-
 	return 0;
 }
-
-
-// End of file

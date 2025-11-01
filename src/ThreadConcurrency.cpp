@@ -177,6 +177,3 @@ void* ThreadConcurrency::candy_thread_consumer(void* arg)
 
 	return nullptr;
 }
-
-
-// End of file
